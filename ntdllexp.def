@@ -1,0 +1,5 @@
+EXPORTS
+NtCreateFile
+NtClose
+NtDeviceIoControlFile
+RtlInitUnicodeString
