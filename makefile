@@ -3,6 +3,13 @@
 
 .SUFFIXES:
 
+!IFNDEF	VC6
+MNFT	= mt
+!ELSE
+CDEFS	= /D_WIN32_WINNT=0x0500
+!ENDIF
+TLIB	= lib
+
 main : help beepwarn.exe cleanobj
 
 help:
@@ -15,19 +22,25 @@ help:
 
 test: abeeptst.exe
 
-comnflags = /nologo
+COMNFLAGS = /nologo
+CFLAGS	= /Gz /Oxs $(CDEFS)
 
-beepwarn.exe: beepwarn.c abeep.c ntdllexp.lib
-	cl $(comnflags) /Gz beepwarn.c abeep.c ntdllexp.lib user32.lib shell32.lib shlwapi.lib
-	mt $(comnflags) -manifest beepwarn.exe.manifest -outputresource:beepwarn.exe
+beepwarn.exe: beepwarn.c asynbeep.c ntdllexp.lib
+	$(CC) $(COMNFLAGS) $(CFLAGS) beepwarn.c asynbeep.c ntdllexp.lib kernel32.lib \
+	user32.lib shell32.lib shlwapi.lib /link /ENTRY:mainStartup
+!IFDEF	MNFT
+	$(MNFT) $(COMNFLAGS) -manifest beepwarn.exe.manifest -outputresource:beepwarn.exe
+!ENDIF
 
-abeeptst.exe: abeeptst.c abeep.c ntdllexp.lib
-	cl $(comnflags) /Gz abeeptst.c abeep.c ntdllexp.lib
-	mt $(comnflags) -manifest abeeptst.exe.manifest -outputresource:abeeptst.exe
+abeeptst.exe: abeeptst.c asynbeep.c ntdllexp.lib
+	$(CC) $(COMNFLAGS) $(CFLAGS) abeeptst.c asynbeep.c ntdllexp.lib kernel32.lib
+!IFDEF	MNFT
+	$(MNFT) $(COMNFLAGS) -manifest abeeptst.exe.manifest -outputresource:abeeptst.exe
+!ENDIF
 
 ntdllexp.lib: ntdllexp.c ntdllexp.def
-	cl $(comnflags) /Gz /c ntdllexp.c
-	lib $(comnflags) /DEF:ntdllexp.def /NAME:ntdll ntdllexp.obj
+	$(CC) $(COMNFLAGS) /Gz /c $(CDEFS) ntdllexp.c
+	$(TLIB) $(COMNFLAGS) /NODEFAULTLIB /DEF:ntdllexp.def /NAME:ntdll ntdllexp.obj
 
 clean: cleanobj
 

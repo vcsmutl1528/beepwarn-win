@@ -1,9 +1,7 @@
 
-#define _WIN32_WINNT 0x0400
 #include <windows.h>
-#include <stdio.h> // DEBUG
 
-#include "abeep.h"
+#include "asynbeep.h"
 
 #define BEEP_DEFAULT_FREQ	800
 #define BEEP_DEFAULT_DURATION	200
@@ -46,7 +44,7 @@ static VOID ParseAndWritePromptMessage (VOID);
 BOOL IsKeyPressed (void);
 BOOL WINAPI HandlerRoutine (DWORD dwCtrlType);
 
-int __cdecl main (void)
+int main (void)
 {
 	DWORD dw;
 	INT iInd;
@@ -148,6 +146,11 @@ int __cdecl main (void)
 			default: return exitError;
 		}
 	return exitOK;
+}
+
+void mainStartup (void)
+{
+	ExitProcess (main ());
 }
 
 BOOL IsKeyPressed (void)
